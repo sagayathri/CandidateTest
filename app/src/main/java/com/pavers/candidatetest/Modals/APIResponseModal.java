@@ -1,9 +1,22 @@
 package com.pavers.candidatetest.Modals;
 
-public class APIResponseModal {
+import com.google.gson.annotations.SerializedName;
 
-    private int ResponseCode;
-    private String ResponseMessage;
+import java.io.Serializable;
+
+public class APIResponseModal implements Serializable {
+
+    @SerializedName ("responseCode") private int ResponseCode;
+    @SerializedName ("responseMessage") private String ResponseMessage;
+    @SerializedName("sucess") private boolean success;
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
 
     public int getResponseCode() {
         return ResponseCode;

@@ -13,5 +13,4 @@ public interface API_RandomUser {
             @Query("inc") String include,
             @Query("gender") String sex
     );
-
 }

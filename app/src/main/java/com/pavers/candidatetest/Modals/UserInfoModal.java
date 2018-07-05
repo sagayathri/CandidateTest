@@ -1,6 +1,8 @@
 package com.pavers.candidatetest.Modals;
 
-public class UserInfoModal {
+import java.io.Serializable;
+
+public class UserInfoModal implements Serializable {
 
     private int userID;
     private int userStartDate;
@@ -23,7 +25,6 @@ public class UserInfoModal {
     public void setUserStartDate(int userStartDate) {
         this.userStartDate = userStartDate;
     }
-
 
     public int getIsActive() {
         return isActive;

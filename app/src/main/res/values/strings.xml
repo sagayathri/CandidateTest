@@ -1,4 +1,23 @@
 <resources>
     <string name="app_name">Candidate Test</string>
     <string name="action_settings">Settings</string>
+    <string name="main_page">User List</string>
+    <string name="title_activity_contact_details">Contact Details</string>
+    <string name="title_activity_edit_details">Edit Details</string>
+
+    <string-array name="user_permissionlevel">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="user_team">
+        <item>Picking</item>
+        <item>Packing</item>
+        <item>Stock Control</item>
+    </string-array>
+    <string-array name="user_paygrade">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
 </resources>

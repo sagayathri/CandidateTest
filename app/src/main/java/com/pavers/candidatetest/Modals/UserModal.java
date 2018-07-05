@@ -1,6 +1,10 @@
 package com.pavers.candidatetest.Modals;
 
-public class UserModal {
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+
+public class UserModal implements Serializable {
 
     private UserHeaderModal userHeaderModal;
     private UserInfoModal userInfoModal;

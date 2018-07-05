@@ -1,16 +1,23 @@
 package com.pavers.candidatetest.API;
 
+import android.widget.ImageView;
+
 import com.pavers.candidatetest.Modals.APIResponseModal;
-import com.pavers.candidatetest.Modals.UserInfoModal;
-import com.pavers.candidatetest.Modals.UserHeaderModal;
+import com.pavers.candidatetest.Modals.UpdateUserModal;
+import com.pavers.candidatetest.Modals.UserCreateModal;
 import com.pavers.candidatetest.Modals.UserModal;
 
 import java.util.List;
 
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.Field;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
@@ -23,21 +30,25 @@ public interface API_Database {
     @GET("users")
     Observable<List<UserModal>> getAllUsers();
 
-
-
     @DELETE("users")
     Observable<APIResponseModal> deleteUser(
             @Query("userID") int userID
     );
 
-    @PUT("users")
-    Observable<APIResponseModal> updateUser(
-            @Body RequestBody body
-            );
-
     @POST("users")
-    Observable<UserModal> createUser(
+    Call<UserCreateModal> createUser(
+            @Body UserCreateModal userCreateModal
+    );
+
+    @PUT("users/")
+    Call<APIResponseModal> updateUser(
+            @Query("userID") int userID,
             @Body RequestBody body
     );
 
+    /*@PUT("users")
+    Observable<Response<Void>> updateUser(
+            @Query("userID") int userID,
+            @Body RequestBody body
+    );*/
 }
