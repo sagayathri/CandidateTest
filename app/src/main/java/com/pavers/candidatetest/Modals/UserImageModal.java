@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class UserImageModal implements Serializable {
 
-    private int userID;
     private String picture;
+    private int userID;
 
     public int getUserID() {
         return userID;

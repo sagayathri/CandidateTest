@@ -6,18 +6,18 @@ import java.io.Serializable;
 
 public class UpdateUserModal implements Serializable{
 
-    @Expose private Integer userPermissionLevel;
-    @Expose private String userTeam;
-    @Expose private String userPayGrade;
-    @Expose private String picture;
+    public Integer userPermissionLevel;
+    public String userTeam;
+    public Integer payGrade;
+    public String picture;
 
     public UpdateUserModal() {
     }
 
-    public UpdateUserModal(Integer userPermissionLevel, String userTeam, String userPayGrade, String picture) {
+    public UpdateUserModal(Integer userPermissionLevel, String userTeam, Integer payGrade, String picture) {
         this.userPermissionLevel = userPermissionLevel;
         this.userTeam = userTeam;
-        this.userPayGrade = userPayGrade;
+        this.payGrade = payGrade;
         this.picture = picture;
     }
 
@@ -45,11 +45,11 @@ public class UpdateUserModal implements Serializable{
         this.userTeam = userTeam;
     }
 
-    public String getUserPayGrade() {
-        return userPayGrade;
+    public Integer getpayGrade() {
+        return payGrade;
     }
 
-    public void setUserPayGrade(String userPayGrade) {
-        this.userPayGrade = userPayGrade;
+    public void setpayGrade(Integer PayGrade) {
+        this.payGrade = PayGrade;
     }
 }

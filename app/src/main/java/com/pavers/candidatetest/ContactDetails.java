@@ -44,9 +44,9 @@ public class ContactDetails extends AppCompatActivity {
         userActiveState =(TextView) findViewById(R.id.isActive);
         userPayGrade =(TextView) findViewById(R.id.payGrade);
 
-       Intent intent = getIntent();
-       userModal = (UserModal) intent.getSerializableExtra("currentUser");
-       getUserDetails(userModal);
+        Intent intent = getIntent();
+        userModal = (UserModal) intent.getSerializableExtra("currentUser");
+        getUserDetails(userModal);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ContactDetails extends AppCompatActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY");
         String startDate = dateFormat.format(new Date((start_date)*1000L));
         if(end_date != 0){
-           endDate = dateFormat.format(new Date((end_date)*1000));
+            endDate = dateFormat.format(new Date((end_date)*1000));
         }else {
             endDate = "N/A";
         }

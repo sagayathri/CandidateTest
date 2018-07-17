@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class APIResponseModal implements Serializable {
+public class APIResponseModal {
 
     @SerializedName ("responseCode") private int ResponseCode;
     @SerializedName ("responseMessage") private String ResponseMessage;

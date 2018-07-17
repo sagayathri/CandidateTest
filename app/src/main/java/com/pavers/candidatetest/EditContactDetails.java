@@ -22,6 +22,9 @@ import com.pavers.candidatetest.API.API_Database;
 import com.pavers.candidatetest.Controller.UserController;
 import com.pavers.candidatetest.Modals.APIResponseModal;
 import com.pavers.candidatetest.Modals.UpdateUserModal;
+import com.pavers.candidatetest.Modals.UserHeaderModal;
+import com.pavers.candidatetest.Modals.UserImageModal;
+import com.pavers.candidatetest.Modals.UserInfoModal;
 import com.pavers.candidatetest.Modals.UserModal;
 
 import java.util.List;
@@ -45,6 +48,9 @@ public class EditContactDetails extends AppCompatActivity {
     EditText userendDate;
     ImageView imageView;
     UserModal userModal;
+    UserHeaderModal userHeaderModal;
+    UserImageModal userImageModal;
+    UserInfoModal userInfoModal;
     API_Database api_database;
     String[] user_Team = {"Picking", "Packing", "Stock Control"};
     UserController userController = new UserController(this);
@@ -61,6 +67,10 @@ public class EditContactDetails extends AppCompatActivity {
         userPayGrade =(Spinner) findViewById(R.id.payGrade);
         userendDate = (EditText)findViewById(R.id.endDate);
         imageView = (ImageView)findViewById(R.id.imageView);
+        userHeaderModal = new UserHeaderModal();
+        userImageModal = new UserImageModal();
+        userInfoModal = new UserInfoModal();
+
 
         Intent intent = getIntent();
         userModal = (UserModal) intent.getSerializableExtra("editUser");
@@ -70,14 +80,15 @@ public class EditContactDetails extends AppCompatActivity {
         userpermissionlevel.setSelection(userModal.getUserHeaderModal().getUserPermissionLevel());
         userPayGrade.setSelection(userModal.getUserInfoModal().getPayGrade());
         imageView.setImageURI(Uri.parse(String.valueOf(userModal.getUserImageModal().getPicture())));
+        userHeaderModal.setUserID(userModal.getUserHeaderModal().getUserID());
+        userInfoModal.setUserID(userModal.getUserHeaderModal().getUserID());
+        userImageModal.setUserID(userModal.getUserHeaderModal().getUserID());
+        userImageModal.setPicture(userModal.getUserImageModal().getPicture());
         String temp = userModal.getUserHeaderModal().getUserTeam().toString();
         for(int i=0; i<3;i++) {
             if (user_Team[i].equals(temp))
                 userTeam.setSelection(i);
         }
-        Config config = new Config();
-        Retrofit rfDatabase = config.databaseServer();
-        api_database = rfDatabase.create(API_Database.class);
     }
 
 
@@ -93,13 +104,13 @@ public class EditContactDetails extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save: {
+                String endDate = userendDate.getText().toString();
+                if (!endDate.equals("0")){
+                    userController.deleteUser(userModal.getUserHeaderModal().getUserID());
+                }
                 setupdatedUser();
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
-                int temp = Integer.parseInt(userendDate.getText().toString());
-                if (temp != 0){
-                    userController.deleteUser(userModal.getUserHeaderModal().getUserID());
-                }
             }
             break;
             default:
@@ -109,15 +120,22 @@ public class EditContactDetails extends AppCompatActivity {
     }
 
     private void setupdatedUser() {
+        /*userHeaderModal.setUserPermissionLevel(Integer.parseInt((String.valueOf(userpermissionlevel.getSelectedItem()))));
+        userHeaderModal.setUserTeam((String) userTeam.getSelectedItem());
+        userModal.setUserHeaderModal(userHeaderModal);
+        userInfoModal.setPayGrade(Integer.parseInt(String.valueOf(userPayGrade.getSelectedItem())));
+        userModal.setUserInfoModal(userInfoModal);
+        userImageModal.setPicture(userImageModal.getPicture());
+        userModal.setUserImageModal(userImageModal);
+        userModal.setUserImageModal(userImageModal);*/
         UpdateUserModal updateUserModal = new UpdateUserModal();
-        updateUserModal.setUserPermissionLevel(Integer.parseInt((String.valueOf(userpermissionlevel.getSelectedItem()))));
-        updateUserModal.setUserPayGrade(String.valueOf(userPayGrade.getSelectedItem()));
         updateUserModal.setUserTeam((String) userTeam.getSelectedItem());
-        updateUserModal.setPicture(userModal.getUserImageModal().getPicture());
+        updateUserModal.setUserPermissionLevel(Integer.parseInt((String.valueOf(userpermissionlevel.getSelectedItem()))));
+        updateUserModal.setpayGrade(Integer.parseInt(String.valueOf(userPayGrade.getSelectedItem())));
 
         String postJSON = new Gson().toJson(updateUserModal);
         final RequestBody body = RequestBody.create(MediaType.parse("application/json"), postJSON);
-        userController.setupdatedUser(userModal.getUserHeaderModal().getUserID(),body);
+        userController.setupdatedUser(userModal.getUserHeaderModal().getUserID(), body);
     }
 
     @Override

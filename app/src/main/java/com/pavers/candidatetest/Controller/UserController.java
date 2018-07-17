@@ -6,28 +6,23 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.pavers.candidatetest.API.API_Database;
+import com.pavers.candidatetest.API.API_RandomUser;
 import com.pavers.candidatetest.Adaptors.UserAdaptor;
 import com.pavers.candidatetest.Config;
 import com.pavers.candidatetest.Modals.APIResponseModal;
 import com.pavers.candidatetest.Modals.UpdateUserModal;
 import com.pavers.candidatetest.Modals.UserCreateModal;
-import com.pavers.candidatetest.Modals.UserHeaderModal;
 import com.pavers.candidatetest.Modals.UserImageModal;
-import com.pavers.candidatetest.Modals.UserInfoModal;
 import com.pavers.candidatetest.Modals.UserModal;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import rx.Observable;
 import rx.Subscriber;
@@ -40,17 +35,27 @@ public class UserController {
     private List<UserModal> allUsers;
     private Activity mainActivity;
     private RecyclerView rvUser;
+    private API_RandomUser api_randomUser;
+    private UserModal userModal;
+    private UserImageModal userImageModal;
 
     public UserController(Activity _mainActivity, RecyclerView _rvUser) {
 
         this.mainActivity = _mainActivity;
         this.rvUser = _rvUser;
+        userModal = new UserModal();
+        userImageModal = new UserImageModal();
 
         Config config = new Config();
         Retrofit rfDatabase = config.databaseServer();
         api_database = rfDatabase.create(API_Database.class);
 
         getUsers();
+        /*try {
+            createUser();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
     }
 
     public UserController(Activity _mainActivity) {
@@ -80,12 +85,14 @@ public class UserController {
                             for (int i = 0; i < userModals.size(); i++) {
                                 allUsers = userModals;
                                 UserModal modal = userModals.get(i);
-                                int temp = Integer.parseInt(String.valueOf(modal.getUserInfoModal().getUserLeaveDate()));
-                                if (temp != 0)
+                                int temp = modal.getUserInfoModal().getUserLeaveDate();
+                                String tempDate = String.valueOf(modal.getUserInfoModal().getUserLeaveDate());
+                                if (temp != 0 || tempDate != null) {
                                     allUsers.remove(i);
+                                    deleteUser(modal.getUserHeaderModal().getUserID());
+                                }
                             }
                         }
-                        //createUser();
                     }
                 });
     }
@@ -125,68 +132,111 @@ public class UserController {
                     @Override
                     public void onError(Throwable e) {
                     }
+
                 });
     }
 
-    public void setupdatedUser(int userID, RequestBody body) {
+    public void setupdatedUser(final int userID, RequestBody body) {
         Config config = new Config();
         Retrofit rfDatabase = config.databaseServer();
         api_database = rfDatabase.create(API_Database.class);
 
-        Call<APIResponseModal> updateUser = api_database.updateUser(userID, body);
-        updateUser.enqueue(new Callback<APIResponseModal>() {
+        final Observable<UpdateUserModal> updateUser = api_database.updateUser(userID, body);
+        updateUser.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<UpdateUserModal>() {
+                    @Override
+                    public void onCompleted() {
+                        getUsers();
+                    }
 
-            @Override
-            public void onResponse(Call<APIResponseModal> call, Response<APIResponseModal> response) {
-                if(response.isSuccessful()) {
-                    APIResponseModal apiResponseModal= response.body();
-                    getUsers();
-                }
-            }
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("error", String.valueOf(e));
+                    }
 
-            @Override
-            public void onFailure(Call<APIResponseModal> call, Throwable t) {
+                    @Override
+                    public void onNext(UpdateUserModal updateUserModal) {
 
-            }
-        });
+                    }
+                });
     }
 
-   public void createUser() {
-       if (api_database == null) {
-           Config config = new Config();
-           Retrofit rfDatabase = config.databaseServer();
-           api_database = rfDatabase.create(API_Database.class);
-       }
+    public void createUser() throws InterruptedException {
 
-       final UserCreateModal userCreateModal = new UserCreateModal();
-       userCreateModal.setUserName("Lindsey Love");
-       userCreateModal.setUserPermissionLevel(0);
-       userCreateModal.setUserSex("F");
-       userCreateModal.setUserTeam("Picking");
-       userCreateModal.setPayGrade(0);
-       userCreateModal.setIsActive(1);
-       userCreateModal.setUserStartDate(1488266592);
-       userCreateModal.setUserID(46);
-       userCreateModal.setPicture("");
-       userCreateModal.setUserID(46);
+        final UserCreateModal userCreateModal = new UserCreateModal();
+        userCreateModal.setUserName("Test User");
+        userCreateModal.setUserPermissionLevel(0);
+        userCreateModal.setUserSex("M");
+        userCreateModal.setUserTeam("Picking");
+        userCreateModal.setPayGrade(0);
+        userCreateModal.setIsActive(1);
+        userCreateModal.setUserStartDate(1488266592);
+        String gender = userCreateModal.getUserSex();
+        getpicture(userCreateModal.getUserID(),gender);
+        Thread.sleep(5000);
+        userCreateModal.setPicture(userImageModal.getPicture());
+        Config config = new Config();
+        Retrofit rfDatabase = config.databaseServer();
+        api_database = rfDatabase.create(API_Database.class);
 
-       Call<UserCreateModal> createUsercall = api_database.createUser(userCreateModal);
-       createUsercall.enqueue(new Callback<UserCreateModal>() {
-           @Override
-           public void onResponse(Call<UserCreateModal> call, Response<UserCreateModal> response) {
-               if(response.code()==200){
-                   UserCreateModal userCreateModal1 = response.body();
-                   getUsers();
-               }else {try {
-                   response.errorBody();
-               }catch (Exception e){}
-               }
-           }
+        Observable<UserCreateModal> createUsercall = api_database.createUser(userCreateModal);
 
-           @Override
-           public void onFailure(Call<UserCreateModal> call, Throwable t) {
+        createUsercall.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<UserCreateModal>() {
+                    @Override
+                    public void onCompleted() {
+                        getUsers();
+                    }
 
-           }
-       });
-   }
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(UserCreateModal userCreateModal) {
+                        UserCreateModal userCreateModal1 = userCreateModal;
+                    }
+                });
+    }
+
+    private void getpicture(final int userID, String gender) {
+        if (gender == "M")
+            gender = "male";
+        else if (gender == "F")
+            gender = "female";
+
+        Config config = new Config();
+        Retrofit rfDatabase = config.imageServer();
+        api_randomUser = rfDatabase.create(API_RandomUser.class);
+
+        Observable<JsonElement> getimage = api_randomUser.getImage("gender,picture",gender);
+        final JsonElement[] picture = new JsonElement[1];
+        final String[] picturestr = new String[1];
+        getimage.subscribeOn(Schedulers.newThread())
+                // .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<JsonElement>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("Error", String.valueOf(e));
+                    }
+
+                    @Override
+                    public void onNext(JsonElement jsonElement) {
+                        JsonObject jsonObject = (JsonObject) jsonElement;
+                        JsonElement json = jsonObject.getAsJsonArray("results").get(0);
+                        JsonObject pic = (JsonObject) json.getAsJsonObject().get("picture");
+                        picture[0] = pic.get("thumbnail");
+                        picturestr[0] = String.valueOf(picture[0]);
+                        userImageModal.setPicture(picturestr[0]);
+                        userImageModal.setUserID(userID);
+                    }
+                });
+    }
 }
